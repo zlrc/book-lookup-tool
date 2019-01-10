@@ -108,18 +108,17 @@ public class BLT extends JFrame {
 		**/
 		private static class Book {
 			private String name, author, isbn10, cover;
-			private double amazonPrice, barnesPrice;
+			private double amazonPrice;
 			public static double totalCost = 0;
 
 			// Constructor(s)
-			public Book (String n, String a, String i, String c, double ap, double bp)
+			public Book (String n, String a, String i, String c, double ap)
 			{
 				name = n;
 				author = a;
 				isbn10 = i;
 				cover = c;
 				amazonPrice = ap;
-				barnesPrice = bp;
 				totalCost += amazonPrice;
 				System.out.println("New Book: " + name + " by " + author + " ($" + amazonPrice + ")" );
 			}
@@ -130,7 +129,6 @@ public class BLT extends JFrame {
 			public String getISBN(){ return isbn10; }
 			public String getCoverUrl(){ return cover; }
 			public double getAmazonPrice(){ return amazonPrice; }
-			public double getBarnesPrice(){ return barnesPrice; }
 
 			/**
 			 * Cuts a string down to a specified length if it exceeds it
@@ -215,7 +213,8 @@ public class BLT extends JFrame {
 
 								while ( (line = in.readLine()) != null)
 								{
-									books[booksLength] = new Book(line, in.readLine(), in.readLine(), in.readLine(), Double.parseDouble(in.readLine()), Double.parseDouble(in.readLine()) );
+									books[booksLength] = new Book(line, in.readLine(), in.readLine(), in.readLine(), Double.parseDouble(in.readLine()) );
+									in.readLine(); // skip the store page url for now
 									booksLength++;
 								}
 
@@ -325,19 +324,12 @@ public class BLT extends JFrame {
 				 titleLabel.setFont(new Font("Verdana", Font.BOLD, 14));
 				 authorLabel.setFont(new Font("Verdana", Font.ITALIC, 11));
 
-				 // Get listed price from Barnes & Noble
-				 String formattedBarnesPrice = "B&N: No Price Found";
-				 if (b[i].getBarnesPrice() != 0.0)
-				 	formattedBarnesPrice = String.format("B&N: $%.2f",b[i].getBarnesPrice());
-				 JLabel barnesPriceLabel = new JLabel(formattedBarnesPrice);
-
 				 // Get listed price from Amazon
 				 String formattedAmazonPrice = String.format("Amazon: $%.2f",b[i].getAmazonPrice());
 				 JLabel amazonPriceLabel = new JLabel(formattedAmazonPrice);
 
 				 bookInfoText.add(titleLabel);
 				 bookInfoText.add(authorLabel);
-				 bookInfoText.add(barnesPriceLabel);
 				 bookInfoText.add(amazonPriceLabel);
 
 				 // Get cover image

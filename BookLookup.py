@@ -49,7 +49,7 @@ class BookLookup:
     # User Agent methods
     def __rand_ua(self):
         """
-        Generates a random user agent for web scraping
+        Generates a random user agent
 
         Returns
         -------
@@ -124,53 +124,10 @@ class BookLookup:
         finally:
             return price
 
-    def chegg_price(self):
-        """
-        Gets the rental price from Chegg (currently broken)
+    # URL Getter
+    def amazon_url(self):
+        return "https://www.amazon.com/dp/" + str(self.isbn10) + "/"
 
-        Returns
-        -------
-        float
-            Price of the book ($)
-        """
-        isbn = str(self.isbn10)
-
-        # Search for the book
-        search_url = requests.get("https://www.chegg.com/textbooks/" + isbn + "/",headers={"User-Agent":"Defined"})
-        soup = BeautifulSoup(search_url.content, "lxml")
-
-        # Find the first store page url
-        store_page = requests.get( "https://www.chegg.com" + soup.select_one("a[href*=/textbooks/]")['href'],headers={"User-Agent":"Defined"})
-        soup = BeautifulSoup(store_page.content, "lxml")
-
-        # Grab the rental price
-        print(soup.find("span", {"class": ["name"]}))
-        price = float(soup.find("span", {"class": ["price"]}).get_text().lstrip('$')) # first result
-
-        return None
-
-    def bnn_price(self):
-        """
-        Gets the listed price of the book off Barnes & Noble
-
-        Returns
-        -------
-        float
-            Price of the book ($)
-        """
-        isbn = str(self.isbn13)
-
-        # Query the store page
-        search_url = requests.get("https://www.barnesandnoble.com/s/" + isbn,headers={"User-Agent":"Defined"}) #self.__get_header() )
-        soup = BeautifulSoup(search_url.content, "lxml")
-
-        # Grab the current price listed
-        try:
-            price = float(soup.find("span", {"class": ["current-price"]}).get_text().lstrip('$')) # first result
-        except:
-            price = 0.0
-
-        return price
 
 
 
@@ -194,11 +151,12 @@ def main():
             book.append(BookLookup(isbn_input)) # instantiate and append BookLookup object(s) to list
             isbn_input = input("Please enter another ISBN (negative to quit): ")
 
+
     # Append book data to a single string that we'll read using Java
     book_data = ""
     for i in range(len(book)):
         time.sleep( uniform(0.0,0.5) ) # adds a delay between requests
-        book_data += book[i].title+"\n"+book[i].author+"\n"+book[i].isbn10+"\n"+book[i].cover_url+"\n"+str(book[i].amazon_price())+"\n" +str(book[i].bnn_price())+"\n"
+        book_data += book[i].title+"\n"+book[i].author+"\n"+book[i].isbn10+"\n"+book[i].cover_url+"\n"+str(book[i].amazon_price())+"\n"+book[i].amazon_url()+"\n"
 
     print(book_data)
 
