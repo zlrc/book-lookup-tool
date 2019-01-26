@@ -5,7 +5,9 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URI;
 
 public class BLT extends JFrame {
 
@@ -20,6 +22,9 @@ public class BLT extends JFrame {
 		private String[] bookIsbn = new String[20];
 		private int nextIndex = 0;
 
+		/**
+		 * Constructor for the main JFrame window
+		**/
     public BLT() {
         super("Book Lookup Tool");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -107,12 +112,12 @@ public class BLT extends JFrame {
 		 * Class to store information on each book we're searching for
 		**/
 		private static class Book {
-			private String name, author, isbn10, cover;
+			private String name, author, isbn10, cover, amazonStorePage;
 			private double amazonPrice;
 			public static double totalCost = 0;
 
 			// Constructor(s)
-			public Book (String n, String a, String i, String c, double ap)
+			public Book (String n, String a, String i, String c, double ap, String aURL)
 			{
 				name = n;
 				author = a;
@@ -120,7 +125,8 @@ public class BLT extends JFrame {
 				cover = c;
 				amazonPrice = ap;
 				totalCost += amazonPrice;
-				System.out.println("New Book: " + name + " by " + author + " ($" + amazonPrice + ")" );
+				amazonStorePage = aURL;
+				System.out.println("New Book: " + name + " by " + author + " ($" + amazonPrice + ")");
 			}
 
 			// Accessors
@@ -129,6 +135,17 @@ public class BLT extends JFrame {
 			public String getISBN(){ return isbn10; }
 			public String getCoverUrl(){ return cover; }
 			public double getAmazonPrice(){ return amazonPrice; }
+
+			/**
+			 * Store page accessor
+			 * @param type the website we want the store page url from
+			 * @return a string containing a url to the store page
+			**/
+			public String getPageUrl(String type)
+			{
+				if ( type.equalsIgnoreCase("amazon") );
+					return amazonStorePage;
+			}
 
 			/**
 			 * Cuts a string down to a specified length if it exceeds it
@@ -153,6 +170,8 @@ public class BLT extends JFrame {
 		} // end of Book class
 
 
+
+	 // Listeners Below
 
    /**
     *  Listener for '->' button, adds isbn to list.
@@ -213,8 +232,7 @@ public class BLT extends JFrame {
 
 								while ( (line = in.readLine()) != null)
 								{
-									books[booksLength] = new Book(line, in.readLine(), in.readLine(), in.readLine(), Double.parseDouble(in.readLine()) );
-									in.readLine(); // skip the store page url for now
+									books[booksLength] = new Book(line, in.readLine(), in.readLine(), in.readLine(), Double.parseDouble(in.readLine()), in.readLine());
 									booksLength++;
 								}
 
@@ -324,6 +342,27 @@ public class BLT extends JFrame {
 				 titleLabel.setFont(new Font("Verdana", Font.BOLD, 14));
 				 authorLabel.setFont(new Font("Verdana", Font.ITALIC, 11));
 
+				 // Button to open the store page
+				 JButton amazonStorePageButton = new JButton("Store Page");
+				 String amazonStoreUrl = b[i].getPageUrl("amazon");
+
+				 amazonStorePageButton.addActionListener( new ActionListener() {
+
+	         public void actionPerformed(ActionEvent e) {
+
+						try {
+							 URI uri = new URI(amazonStoreUrl); // uri object for store page
+							 Desktop dt = Desktop.getDesktop();
+							 dt.browse(uri.resolve(uri)); // opens default browser to the url
+						} catch (URISyntaxException ex) {
+							 System.out.println(ex);
+						} catch (IOException ex) {
+							 System.out.println(ex);
+						}
+
+	       	 }
+	       }); // end of button's ActionListener instantiation
+
 				 // Get listed price from Amazon
 				 String formattedAmazonPrice = String.format("Amazon: $%.2f",b[i].getAmazonPrice());
 				 JLabel amazonPriceLabel = new JLabel(formattedAmazonPrice);
@@ -331,6 +370,7 @@ public class BLT extends JFrame {
 				 bookInfoText.add(titleLabel);
 				 bookInfoText.add(authorLabel);
 				 bookInfoText.add(amazonPriceLabel);
+				 bookInfoText.add(amazonStorePageButton);
 
 				 // Get cover image
 				 Image coverImg = null;
