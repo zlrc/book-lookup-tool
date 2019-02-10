@@ -9,7 +9,8 @@
 </p>
 <hr>
 
-<p align="center"><img src="https://i.imgur.com/8gETjoE.png"></p>
+<p align="center"><img src="https://i.imgur.com/8gETjoE.png" height=500px></p>
+
 ## How to Use
 
 Note: In it's current state, the program can only be run through the terminal on Linux. Jar file downloads and support for other operating systems will be added at a later date.
